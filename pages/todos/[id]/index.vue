@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import { doc, onSnapshot, type Unsubscribe } from 'firebase/firestore'
-import { db } from '~/config/firebase'
+import {
+	doc,
+	onSnapshot,
+	type Firestore,
+	type Unsubscribe,
+} from 'firebase/firestore'
 import type { ITodo } from '~/interfaces/todo'
 
 const { id } = useRoute().params
 const isLoading = ref(true)
 let unsubscribe: Unsubscribe | null = null
+const { $firebaseDb } = useNuxtApp()
 
 const todo = ref<ITodo | null>(null)
 
 onMounted(async () => {
-	unsubscribe = onSnapshot(doc(db, 'todos', id as string), (doc) => {
-		if (!doc.exists()) {
-			navigateTo('/')
-		}
+	unsubscribe = onSnapshot(
+		doc($firebaseDb as Firestore, 'todos', id as string),
+		(doc) => {
+			if (!doc.exists()) {
+				navigateTo('/')
+			}
 
-		todo.value = doc.data() as ITodo
-		isLoading.value = false
-	})
+			todo.value = doc.data() as ITodo
+			isLoading.value = false
+		},
+	)
 })
 
 onUnmounted(() => {

@@ -8,14 +8,15 @@ import {
 } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { defineStore } from 'pinia'
-import { auth, db } from '~/config/firebase'
 
+import type { Auth } from 'firebase/auth'
+import type { Firestore } from 'firebase/firestore'
 import type { IUser } from '~/interfaces/user'
 
 export const useUserStore = defineStore('userStore', {
 	state: () => ({
 		user: null as IUser | null,
-		loading: false,
+		loading: true,
 	}),
 	actions: {
 		setLoading(loading: boolean) {
@@ -27,7 +28,8 @@ export const useUserStore = defineStore('userStore', {
 		async getMe(id: string) {
 			this.loading = true
 
-			const docRef = doc(db, 'users', id)
+			const { $firebaseDb } = useNuxtApp()
+			const docRef = doc($firebaseDb as Firestore, 'users', id)
 			const snapshot = await getDoc(docRef)
 
 			if (!snapshot.exists()) {
@@ -41,49 +43,68 @@ export const useUserStore = defineStore('userStore', {
 		async login(email: string, password: string) {
 			this.loading = true
 
+			const { $firebaseAuth, $firebaseDb } = useNuxtApp()
 			const userCredential = await signInWithEmailAndPassword(
-				auth,
+				$firebaseAuth as Auth,
 				email,
 				password,
 			)
 
-			const user = await getDoc(doc(db, 'users', userCredential.user.uid))
+			const user = await getDoc(
+				doc($firebaseDb as Firestore, 'users', userCredential.user.uid),
+			)
 			this.user = user.data() as IUser
 		},
 		async register(displayName: string, email: string, password: string) {
 			this.loading = true
 
+			const { $firebaseAuth, $firebaseDb } = useNuxtApp()
 			const userCredential = await createUserWithEmailAndPassword(
-				auth,
+				$firebaseAuth as Auth,
 				email,
 				password,
 			)
 
-			await setDoc(doc(db, 'users', userCredential.user.uid), {
-				id: userCredential.user.uid,
-				displayName,
-				email,
-				todos: [],
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			})
+			await setDoc(
+				doc($firebaseDb as Firestore, 'users', userCredential.user.uid),
+				{
+					id: userCredential.user.uid,
+					displayName,
+					email,
+					todos: [],
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+			)
 		},
 		async logout() {
 			this.loading = true
-			await signOut(auth)
+
+			const { $firebaseAuth } = useNuxtApp()
+			await signOut($firebaseAuth as Auth)
+
 			this.user = null
 			this.loading = false
 		},
 		async loginWithProvider(name: 'google' | 'facebook') {
 			this.loading = true
 
+			const { $firebaseAuth, $firebaseDb } = useNuxtApp()
+
 			const provider =
 				name === 'google'
 					? new GoogleAuthProvider()
 					: new FacebookAuthProvider()
-			const userCredential = await signInWithPopup(auth, provider)
+			const userCredential = await signInWithPopup(
+				$firebaseAuth as Auth,
+				provider,
+			)
 
-			const docRef = doc(db, 'users', userCredential.user.uid)
+			const docRef = doc(
+				$firebaseDb as Firestore,
+				'users',
+				userCredential.user.uid,
+			)
 			const snapshot = await getDoc(docRef)
 
 			if (!snapshot.exists()) {

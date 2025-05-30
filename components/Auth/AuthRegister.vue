@@ -2,6 +2,10 @@
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { z } from 'zod'
 
+defineProps<{
+	onClick: () => void
+}>()
+
 const userStore = useUserStore()
 
 const schema = z.object({
@@ -27,7 +31,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 			event.data.email,
 			event.data.password,
 		)
-		navigateTo('/')
 	} catch (error) {
 		console.trace(error)
 		toast.add({
@@ -45,7 +48,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 <template>
 	<div class="flex justify-center items-center h-screen">
 		<div class="w-full max-w-xs space-y-7">
-			<h1 class="text-2xl font-bold text-center">Register</h1>
+			<div class="flex justify-center">
+				<img
+					src="/images/logo.png"
+					alt="Logo"
+					class="w-24 h-24" />
+			</div>
 
 			<UForm
 				:state="state"
@@ -79,16 +87,16 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 				<UButton
 					class="w-full justify-center"
 					type="submit">
-					Continue
+					Register
 				</UButton>
 
 				<div class="text-center">
 					Already have an account?
-					<NuxtLink
-						to="/auth/login"
-						class="font-semibold text-green-500">
+					<UButton
+						@click="onClick"
+						variant="ghost">
 						Login
-					</NuxtLink>
+					</UButton>
 				</div>
 
 				<AuthProviders />

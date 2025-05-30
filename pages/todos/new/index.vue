@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { Firestore } from 'firebase/firestore'
 import { doc, getDoc } from 'firebase/firestore'
 import moment from 'moment'
 import { z } from 'zod'
-import { db } from '~/config/firebase'
 import type { ITodo } from '~/interfaces/todo'
 
 const route = useRoute()
 const id = route.query.id as string | undefined
+const { $firebaseDb } = useNuxtApp()
 
 const toast = useToast()
 
@@ -44,7 +45,7 @@ const { data: todo, pending } = useAsyncData<ITodo | null>('todo', async () => {
 		return null
 	}
 
-	const docRef = doc(db, 'todos', id)
+	const docRef = doc($firebaseDb as Firestore, 'todos', id)
 	const docSnap = await getDoc(docRef)
 
 	if (!docSnap.exists()) {

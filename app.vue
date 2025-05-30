@@ -14,11 +14,11 @@ useSeoMeta({
 <template>
 	<NuxtRouteAnnouncer />
 
-	<UApp>
-		<AppAuthenticate>
+	<AppAuthenticate>
+		<UApp>
 			<NuxtLayout>
 				<NuxtPage />
 			</NuxtLayout>
-		</AppAuthenticate>
-	</UApp>
+		</UApp>
+	</AppAuthenticate>
 </template>

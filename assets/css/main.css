@@ -1,0 +1,115 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+html {
+	font-family: 'Inter', sans-serif;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.markdown-body h1 {
+	font-size: 2.5rem;
+} /* 40px */
+.markdown-body h2 {
+	font-size: 2rem;
+} /* 32px */
+.markdown-body h3 {
+	font-size: 1.75rem;
+} /* 28px */
+/* ... add styles for h4, h5, h6 */
+
+.markdown-body p {
+	line-height: 1.6;
+	font-size: 1rem;
+}
+
+.markdown-body a {
+	color: #2563eb; /* Tailwind's default text-blue-600 */
+	text-decoration: underline;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+	padding-left: 1.5em; /* Indent lists */
+}
+.markdown-body ul {
+	list-style-type: disc;
+}
+.markdown-body ol {
+	list-style-type: decimal;
+}
+.markdown-body li {
+	margin-bottom: 0.5em;
+}
+
+.markdown-body strong {
+	font-weight: 700;
+}
+.markdown-body em {
+	font-style: italic;
+}
+
+.markdown-body blockquote {
+	border-left: 4px solid #d1d5db; /* Tailwind's default border-gray-300 */
+	padding-left: 1em;
+	margin-left: 0;
+	color: #4b5563; /* Tailwind's default text-gray-600 */
+	font-style: italic;
+}
+
+.markdown-body img {
+	max-width: 100%;
+	height: auto;
+	display: block; /* Remove extra space below image */
+	margin: 1em auto; /* Center images and add vertical space */
+	border-radius: 0.375rem; /* Example: rounded-md */
+}
+
+.markdown-body pre {
+	background-color: black;
+	color: #16a34a;
+	padding: 1em;
+	border-radius: 0.375rem; /* rounded-md */
+	overflow-x: auto; /* Horizontal scroll for long lines */
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		'Liberation Mono', 'Courier New', monospace;
+}
+
+.markdown-body code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		'Liberation Mono', 'Courier New', monospace;
+	background-color: black;
+	color: #16a34a;
+	padding: 0.2em 0.4em;
+	border-radius: 0.25rem; /* rounded */
+	font-size: 0.875em; /* Slightly smaller */
+}
+
+.markdown-body pre code {
+	background-color: transparent;
+	padding: 0;
+}
+
+.markdown-body table {
+	width: 100%;
+	border-collapse: collapse;
+}
+.markdown-body th,
+.markdown-body td {
+	border: 1px solid #d1d5db; /* border-gray-300 */
+	padding: 0.75em 1em;
+	text-align: left;
+}
+.markdown-body th {
+	background-color: #f0fdf4;
+	color: #16a34a;
+	font-weight: 600;
+}

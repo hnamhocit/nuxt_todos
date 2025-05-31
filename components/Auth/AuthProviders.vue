@@ -1,22 +1,8 @@
 <script setup lang="ts">
-const toast = useToast()
 const userStore = useUserStore()
 
-const authWithProvider = async (name: 'google' | 'facebook') => {
-	try {
-		await userStore.loginWithProvider(name)
-	} catch (error) {
-		console.trace(error)
-		toast.add({
-			title: `Login with ${name.toUpperCase()} error`,
-			description:
-				error instanceof Error ? error.message : 'Unknown error',
-			color: 'error',
-		})
-	} finally {
-		userStore.setLoading(false)
-	}
-}
+const authWithProvider = async (name: 'google' | 'facebook') =>
+	await userStore.loginWithProvider(name)
 </script>
 
 <template>

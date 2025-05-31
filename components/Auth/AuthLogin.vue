@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import { FirebaseError } from 'firebase/app'
 import { z } from 'zod'
 
 defineProps<{
@@ -14,8 +13,6 @@ const schema = z.object({
 	password: z.string().min(8),
 })
 
-const toast = useToast()
-
 const state = reactive({
 	email: '',
 	password: '',
@@ -24,31 +21,7 @@ const state = reactive({
 type Schema = z.infer<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-	try {
-		await userStore.login(event.data.email, event.data.password)
-	} catch (error) {
-		if (error instanceof FirebaseError) {
-			if (error.code === 'auth/invalid-credential') {
-				toast.add({
-					title: 'Login error',
-					description: 'Invalid email or password',
-					color: 'error',
-				})
-				return
-			}
-
-			if (error.code === 'auth/user-not-found') {
-				toast.add({
-					title: 'Login error',
-					description: 'User not found',
-					color: 'error',
-				})
-				return
-			}
-		}
-	} finally {
-		userStore.setLoading(false)
-	}
+	await userStore.login(event.data.email, event.data.password)
 }
 </script>
 
@@ -92,8 +65,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 				<div class="text-center">
 					Do not have an account?
 					<UButton
-						@click="onClick"
-						variant="ghost">
+						variant="ghost"
+						@click="onClick">
 						Register
 					</UButton>
 				</div>

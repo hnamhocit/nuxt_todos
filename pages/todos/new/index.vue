@@ -17,27 +17,8 @@ const { createTodo, isDisabled, updateTodo } = useTodos()
 const schema = z.object({
 	title: z.string().nonempty('Title cannot be empty.'),
 	description: z.string().nonempty('Description cannot be empty.'),
-	deadline: z.string().transform((str, ctx) => {
-		const date = moment(str, 'YYYY-MM-DDTHH:mm')
-		if (!date.isValid()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: 'Invalid deadline format. Expected YYYY-MM-DDTHH:mm',
-			})
-			return z.NEVER
-		}
-
-		const timestamp = date.valueOf()
-		if (timestamp < Date.now()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: 'Deadline must be in the future.',
-			})
-			return z.NEVER
-		}
-
-		return timestamp
-	}),
+	// Remove deadline validation from schema
+	deadline: z.string(), // Keep it as a string for initial input
 })
 
 const { data: todo, pending } = useAsyncData<ITodo | null>('todo', async () => {
@@ -60,7 +41,7 @@ const { data: todo, pending } = useAsyncData<ITodo | null>('todo', async () => {
 	return docSnap.data() as ITodo
 })
 
-type Values = z.infer<typeof schema>
+type Values = z.infer<typeof schema> & { deadline: string } // Adjust type to include string deadline
 
 const state = reactive({
 	title: '',
@@ -69,19 +50,40 @@ const state = reactive({
 })
 
 async function onSubmit(event: FormSubmitEvent<Values>) {
-	if (id) {
-		await updateTodo(id, {
-			title: event.data.title,
-			description: event.data.description,
-			deadline: event.data.deadline,
-		})
-	} else {
-		await createTodo({
-			title: event.data.title,
-			description: event.data.description,
-			deadline: event.data.deadline,
-		})
+	console.log('Form data before deadline processing:', event.data)
 
+	// Handle deadline conversion and validation outside the schema
+	const date = moment(event.data.deadline, 'YYYY-MM-DDTHH:mm')
+	if (!date.isValid()) {
+		toast.add({
+			title: 'Error',
+			description: 'Invalid deadline format. Expected YYYY-MM-DDTHH:mm',
+			color: 'error',
+		})
+		return // Stop submission if invalid
+	}
+
+	const timestamp = date.valueOf()
+	if (timestamp < Date.now()) {
+		toast.add({
+			title: 'Error',
+			description: 'Deadline must be in the future.',
+			color: 'error',
+		})
+		return // Stop submission if in the past
+	}
+
+	// Now event.data.deadline is the number (timestamp)
+	const todoData = {
+		title: event.data.title,
+		description: event.data.description,
+		deadline: timestamp,
+	}
+
+	if (id) {
+		await updateTodo(id, todoData)
+	} else {
+		await createTodo(todoData)
 		reset()
 	}
 
@@ -102,7 +104,6 @@ watch(
 	todo,
 	(newTodo) => {
 		if (newTodo) {
-			console.log(newTodo)
 			state.title = newTodo.title
 			state.description = newTodo.description
 			state.deadline = moment(newTodo.deadline).format('YYYY-MM-DDTHH:mm')
@@ -125,15 +126,15 @@ watch(
 			placeholder="Title"
 			class="outline-none text-5xl font-bold block bg-transparent resize-none" />
 
-		<div class="flex gap-3">
+		<div class="flex flex-col gap-3">
 			<textarea
 				v-model="state.description"
 				placeholder="Description"
 				rows="12"
-				class="outline-none block flex-1 bg-transparent resize-none" />
+				class="outline-none block w-full bg-transparent resize-none" />
 
 			<MarkdownPreview
-				class="flex-1"
+				class="overflow-hidden w-full"
 				:markdown="state.description" />
 		</div>
 

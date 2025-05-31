@@ -39,7 +39,7 @@ export const useTodos = () => {
 					isLoading.value = false
 				},
 				(error) => {
-					console.error('Error fetching todos:', error)
+					console.trace(error)
 					isLoading.value = false
 				},
 			)

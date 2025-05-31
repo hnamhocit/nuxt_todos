@@ -14,8 +14,6 @@ const schema = z.object({
 	displayName: z.string().nonempty(),
 })
 
-const toast = useToast()
-
 const state = reactive({
 	email: '',
 	password: '',
@@ -25,23 +23,11 @@ const state = reactive({
 type Schema = z.infer<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-	try {
-		await userStore.register(
-			event.data.displayName,
-			event.data.email,
-			event.data.password,
-		)
-	} catch (error) {
-		console.trace(error)
-		toast.add({
-			title: 'Register error',
-			description:
-				error instanceof Error ? error.message : 'Unknown error',
-			color: 'error',
-		})
-	} finally {
-		userStore.setLoading(false)
-	}
+	await userStore.register(
+		event.data.displayName,
+		event.data.email,
+		event.data.password,
+	)
 }
 </script>
 
